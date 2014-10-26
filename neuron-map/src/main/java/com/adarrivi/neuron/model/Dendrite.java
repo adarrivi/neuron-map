@@ -2,11 +2,12 @@ package com.adarrivi.neuron.model;
 
 public class Dendrite {
 
-    private int lifeSpan = 5;
+    private int lifeSpan;
     private Neuron neuron;
 
-    public Dendrite(Neuron neuron) {
+    public Dendrite(Neuron neuron, int lifeSpan) {
         this.neuron = neuron;
+        this.lifeSpan = lifeSpan;
     }
 
     void step() {
@@ -17,7 +18,7 @@ public class Dendrite {
     }
 
     void receiveSpike() {
-        lifeSpan += 3;
+        lifeSpan += 2;
         neuron.activate();
     }
 
@@ -31,6 +32,10 @@ public class Dendrite {
 
     boolean isAlive() {
         return lifeSpan > 0;
+    }
+
+    public void setLifeSpan(int lifeSpan) {
+        this.lifeSpan = lifeSpan;
     }
 
 }

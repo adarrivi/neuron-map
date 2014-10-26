@@ -2,8 +2,21 @@ package com.adarrivi.neuron.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+@Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class Neuron {
+
+    @Autowired
+    private Randomizer randomizer;
 
     private BrainPosition position;
     private List<Dendrite> accesibleDendrites = new ArrayList<>();
@@ -11,7 +24,12 @@ public class Neuron {
     private boolean activated;
     private boolean inputNeuron;
 
-    public Neuron(BrainPosition position) {
+    @PostConstruct
+    public void init() {
+        position = randomizer.getRandomPosition();
+    }
+
+    public void setPosition(BrainPosition position) {
         this.position = position;
     }
 
@@ -40,6 +58,12 @@ public class Neuron {
         }
         activated = false;
         dendrites.forEach(Dendrite::step);
+        if (isIsolated()) {
+            Optional<Dendrite> randomDendrite = randomizer.getRandomElement(dendrites);
+            if (randomDendrite.isPresent()) {
+                randomDendrite.get().setLifeSpan(1);
+            }
+        }
     }
 
     public List<Dendrite> getAccesibleDendrites() {

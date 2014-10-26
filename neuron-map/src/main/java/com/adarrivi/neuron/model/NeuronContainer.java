@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,6 +21,8 @@ public class NeuronContainer {
 
     @Autowired
     private Randomizer randomizer;
+    @Autowired
+    private ApplicationContext applicationContext;
 
     private List<Neuron> neurons;
 
@@ -33,7 +36,7 @@ public class NeuronContainer {
     }
 
     private void addNewRandomNeuron() {
-        neurons.add(new Neuron(randomizer.getRandomPosition()));
+        neurons.add(applicationContext.getBean(Neuron.class));
     }
 
     private void setUpInitialConntections() {
@@ -49,14 +52,14 @@ public class NeuronContainer {
     }
 
     private void addNewConnection(Neuron neuron, Neuron accessible) {
-        Dendrite accessibleDendrite = new Dendrite(accessible);
+        Dendrite accessibleDendrite = new Dendrite(accessible, 0);
         accessible.addDentrite(accessibleDendrite);
         neuron.addAccessibleDendrite(accessibleDendrite);
     }
 
     private void setActiveNeurons() {
         for (int i = 0; i < activeNeuronNumber; i++) {
-            randomizer.getRandomElement(neurons).setInputNeuron(true);
+            randomizer.getRandomElement(neurons).get().setInputNeuron(true);
         }
     }
 

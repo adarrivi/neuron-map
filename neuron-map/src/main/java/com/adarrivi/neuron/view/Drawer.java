@@ -25,6 +25,8 @@ public class Drawer {
     private int width;
     @Value("${brain.border}")
     private int border;
+    @Value("${brain.dendrite.maxLiveSpan}")
+    private int maxLifeSpan;
 
     @Autowired
     private NeuronContainer neuronContainer;
@@ -79,10 +81,10 @@ public class Drawer {
 
     private Color getConnectionColor(Dendrite dendrite) {
         int lifeSpan = dendrite.getLifeSpan();
-        if (lifeSpan > 5) {
+        if (lifeSpan > maxLifeSpan) {
             return Color.WHITE;
         }
-        return getTransparentColors(Color.WHITE, 6).get(lifeSpan);
+        return getTransparentColors(Color.WHITE, maxLifeSpan + 1).get(lifeSpan);
     }
 
     private List<Color> getTransparentColors(Color color, int bands) {

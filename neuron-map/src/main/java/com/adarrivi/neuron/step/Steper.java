@@ -15,7 +15,7 @@ public class Steper {
     @Autowired
     private BrainJPanel brainJPanel;
 
-    @Scheduled(initialDelay = 1000, fixedDelay = 850)
+    @Scheduled(initialDelay = 1000, fixedDelay = 100)
     public void step() {
         processor.processNewStep();
         brainJPanel.repaint();
