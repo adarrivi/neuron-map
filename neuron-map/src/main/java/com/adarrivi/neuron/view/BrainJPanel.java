@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.adarrivi.neuron.model.NeuronContainer;
+import com.adarrivi.neuron.step.Stepper;
 
 @Component
 public class BrainJPanel extends JPanel {
@@ -33,6 +34,8 @@ public class BrainJPanel extends JPanel {
     private Drawer drawer;
     @Autowired
     private NeuronContainer neuronContainer;
+    @Autowired
+    private Stepper stepper;
 
     private JButton restartButton;
 
@@ -59,7 +62,9 @@ public class BrainJPanel extends JPanel {
         restartButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                stepper.stop();
                 neuronContainer.initialize();
+                stepper.start();
 
             }
         });

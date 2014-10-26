@@ -1,5 +1,8 @@
 package com.adarrivi.neuron.step;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -20,11 +23,18 @@ public class Stepper {
     @Value("${frame.skipFrames}")
     private int skipFrames;
 
+    private ExecutorService executor = Executors.newFixedThreadPool(1);
+
     private boolean stop;
     private long elapsedTimeMs;
     private long steps;
 
-    public void stepUntilCancel() {
+    public void start() {
+        executor.execute(() -> stepUntilCancel());
+    }
+
+    private void stepUntilCancel() {
+        stop = false;
         while (!stop) {
             long currentTime = System.currentTimeMillis();
             sleepIfTooFast();
@@ -32,6 +42,10 @@ public class Stepper {
             elapsedTimeMs = currentTime;
             steps++;
         }
+    }
+
+    public void stop() {
+        stop = true;
     }
 
     private void sleepIfTooFast() {

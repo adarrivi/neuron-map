@@ -28,6 +28,8 @@ public class Neuron {
     private List<Axon> axons = new ArrayList<>();
     private List<Dendrite> dendrites = new ArrayList<>();
     private boolean inputNeuron;
+    private boolean outputNeuron;
+    private boolean receivedOnce;
     private int currentPotencial;
 
     @PostConstruct
@@ -54,12 +56,13 @@ public class Neuron {
 
     private void fireAndReset() {
         axons.forEach(Axon::triggerSpike);
-        dendrites.forEach(Dendrite::close);
         currentPotencial = restPotencial;
     }
 
     public void step() {
-        consumeSpikesFromDendrites();
+        if (!isSending()) {
+            consumeSpikesFromDendrites();
+        }
         if (isActivated()) {
             fireAndReset();
         }
@@ -72,15 +75,17 @@ public class Neuron {
     }
 
     private void consumeSpikeFromDendrite(Dendrite dendrite) {
-        Optional<Spike> spike = dendrite.consumeSpike();
+        Optional<Spike> spike = dendrite.getSpike();
         if (spike.isPresent()) {
+            receivedOnce = true;
             currentPotencial += spike.get().getIntensity();
+            dendrite.dismiss();
         }
     }
 
     private void openDendritesIfAxonsReady() {
         if (!isSending()) {
-            dendrites.forEach(Dendrite::open);
+
         }
     }
 
@@ -96,8 +101,12 @@ public class Neuron {
         return inputNeuron;
     }
 
-    public void setInputNeuron(boolean inputNeuron) {
-        this.inputNeuron = inputNeuron;
+    public void setInputNeuron() {
+        this.inputNeuron = true;
+    }
+
+    public void setOutputNeuron() {
+        this.outputNeuron = true;
     }
 
     public void addAxon(Axon axon) {
@@ -110,6 +119,14 @@ public class Neuron {
 
     public int getCurrentPotencial() {
         return currentPotencial;
+    }
+
+    public boolean isOutputNeuron() {
+        return outputNeuron;
+    }
+
+    public boolean isReceivedOnce() {
+        return receivedOnce;
     }
 
 }

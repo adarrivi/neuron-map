@@ -19,6 +19,13 @@ public class NeuronContainer {
     @Value("${brain.inputNeurons}")
     private int activeNeuronNumber;
 
+    @Value("${frame.height}")
+    private int height;
+    @Value("${frame.width}")
+    private int width;
+    @Value("${frame.border}")
+    private int border;
+
     @Autowired
     private Randomizer randomizer;
     @Autowired
@@ -29,7 +36,7 @@ public class NeuronContainer {
     public void initialize() {
         createRandomNeurons();
         neurons.forEach(this::setAxonConnectionToAccessibleNeurons);
-        setInputNeurons();
+        // setInputNeurons();
     }
 
     private void createRandomNeurons() {
@@ -37,6 +44,15 @@ public class NeuronContainer {
         for (int i = 0; i < numberOfNeurons; i++) {
             neurons.add(applicationContext.getBean(Neuron.class));
         }
+        Neuron origin = applicationContext.getBean(Neuron.class);
+        origin.setInputNeuron();
+        origin.setPosition(new BrainPosition(border, border, 0));
+        neurons.add(origin);
+
+        Neuron output = applicationContext.getBean(Neuron.class);
+        output.setOutputNeuron();
+        output.setPosition(new BrainPosition(width - border, height - border, 0));
+        neurons.add(output);
     }
 
     private void setAxonConnectionToAccessibleNeurons(Neuron neuron) {
@@ -52,16 +68,17 @@ public class NeuronContainer {
     }
 
     private void connectWithAxon(Neuron fromNeuron, Neuron toNeuron) {
-        Dendrite toDendrite = new Dendrite(toNeuron);
+        Dendrite toDendrite = new Dendrite();
         toNeuron.addDentrite(toDendrite);
         Axon fromAxon = applicationContext.getBean(Axon.class);
         fromAxon.setDendrite(toDendrite);
+        fromAxon.setDestinationNeuron(toNeuron);
         fromNeuron.addAxon(fromAxon);
     }
 
     private void setInputNeurons() {
         for (int i = 0; i < activeNeuronNumber; i++) {
-            randomizer.getRandomElement(neurons).get().setInputNeuron(true);
+            randomizer.getRandomElement(neurons).get().setInputNeuron();
         }
     }
 

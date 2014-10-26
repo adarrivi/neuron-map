@@ -11,6 +11,7 @@ public class ImageCache {
     public static final Image NEURON_MEDIUM = new ImageIcon(ImageCache.class.getResource("/img/neuron-medium.png")).getImage();
     public static final Image NEURON_LOW = new ImageIcon(ImageCache.class.getResource("/img/neuron-low.png")).getImage();
     public static final Image INPUT_NEURON = new ImageIcon(ImageCache.class.getResource("/img/input-neuron.png")).getImage();
+    public static final Image OUTPUT_NEURON = new ImageIcon(ImageCache.class.getResource("/img/output-neuron.png")).getImage();
     public static final Image ISOLATED_NEURON = new ImageIcon(ImageCache.class.getResource("/img/isolated-neuron.png")).getImage();
 
 }

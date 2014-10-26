@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.adarrivi.neuron.model.Axon;
+import com.adarrivi.neuron.model.BrainPosition;
 import com.adarrivi.neuron.model.Neuron;
 import com.adarrivi.neuron.model.NeuronContainer;
 import com.adarrivi.neuron.model.Randomizer;
@@ -40,7 +41,7 @@ public class Drawer {
     }
 
     private void drawNeuron(Neuron neuron, Graphics2D graphics2d) {
-        DrawPosition neuronDrawPosition = toDrawPosition(neuron);
+        DrawPosition neuronDrawPosition = toDrawPosition(neuron.getPosition());
         drawElement(getNeuronImage(neuron), neuronDrawPosition, graphics2d);
         // graphics2d.setColor(Color.BLACK);
         // graphics2d.drawString(neuron.getCurrentPotencial() + "",
@@ -52,6 +53,9 @@ public class Drawer {
         if (neuron.isInputNeuron()) {
             return ImageCache.INPUT_NEURON;
         }
+        if (neuron.isOutputNeuron()) {
+            return ImageCache.OUTPUT_NEURON;
+        }
         if (neuron.isSending() || neuron.isActivated()) {
             return ImageCache.NEURON_ACTIVATED;
         }
@@ -61,8 +65,8 @@ public class Drawer {
         return ImageCache.NEURON_LOW;
     }
 
-    private DrawPosition toDrawPosition(Neuron neuron) {
-        return new DrawPosition(border, neuron.getPosition());
+    private DrawPosition toDrawPosition(BrainPosition position) {
+        return new DrawPosition(border, position);
     }
 
     private void drawElement(Image image, DrawPosition position, Graphics2D graphics2d) {
@@ -82,8 +86,8 @@ public class Drawer {
     }
 
     private void drawConnection(Neuron neuron, Axon axon, Graphics2D graphics2d) {
-        DrawPosition position1 = toDrawPosition(neuron);
-        DrawPosition position2 = toDrawPosition(axon.getDestinationNeuron());
+        DrawPosition position1 = toDrawPosition(neuron.getPosition());
+        DrawPosition position2 = toDrawPosition(axon.getDestinatioPosition());
         graphics2d.setColor(getTransparentColors(Color.WHITE, 10).get(3));
         graphics2d.drawLine(position1.getX(), position1.getY(), position2.getX(), position2.getY());
     }
