@@ -12,15 +12,13 @@ public class Randomizer {
 
     private static final Random RANDOM = new Random();
 
-    @Value("${brain.height}")
-    private int brainHeight;
-    @Value("${brain.width}")
-    private int branWidth;
-    @Value("${brain.dendrite.maxLiveSpan}")
-    private int maxLifeSpan;
+    @Value("${frame.height}")
+    private int frameHeight;
+    @Value("${frame.width}")
+    private int frameWidth;
 
     public BrainPosition getRandomPosition() {
-        return new BrainPosition(RANDOM.nextInt(branWidth), RANDOM.nextInt(brainHeight), getRandomRotation());
+        return new BrainPosition(RANDOM.nextInt(frameWidth), RANDOM.nextInt(frameHeight), getRandomRotation());
     }
 
     public double getRandomRotation() {
@@ -39,11 +37,8 @@ public class Randomizer {
         return Optional.of(list.get(index));
     }
 
-    public int getRandomLifeSpan() {
-        if (RANDOM.nextBoolean()) {
-            return RANDOM.nextInt(maxLifeSpan + 1);
-        }
-        return 0;
+    public int getRandomNumber(int minNumber, int maxNumber) {
+        return RANDOM.nextInt(maxNumber - minNumber) + minNumber;
     }
 
 }

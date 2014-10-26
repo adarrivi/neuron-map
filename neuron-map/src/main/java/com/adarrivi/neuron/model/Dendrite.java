@@ -1,41 +1,41 @@
 package com.adarrivi.neuron.model;
 
+import java.util.Optional;
+
 public class Dendrite {
 
-    private int lifeSpan;
     private Neuron neuron;
+    private Optional<Spike> spike = Optional.empty();
+    private boolean open = true;
 
-    public Dendrite(Neuron neuron, int lifeSpan) {
+    public Dendrite(Neuron neuron) {
         this.neuron = neuron;
-        this.lifeSpan = lifeSpan;
     }
 
-    void step() {
-        lifeSpan--;
-        if (lifeSpan < 0) {
-            lifeSpan = 0;
+    Optional<Spike> consumeSpike() {
+        Optional<Spike> spikeToBeSend = spike;
+        spike = Optional.empty();
+        if (open) {
+            return spikeToBeSend;
         }
+        return Optional.empty();
     }
 
-    void receiveSpike() {
-        lifeSpan += 2;
-        neuron.activate();
+    void receiveSpike(Spike spike) {
+        this.spike = Optional.of(spike);
+
     }
 
-    public Neuron getNeuron() {
+    Neuron getNeuron() {
         return neuron;
     }
 
-    public int getLifeSpan() {
-        return lifeSpan;
+    void open() {
+        open = true;
     }
 
-    boolean isAlive() {
-        return lifeSpan > 0;
-    }
-
-    public void setLifeSpan(int lifeSpan) {
-        this.lifeSpan = lifeSpan;
+    void close() {
+        open = false;
     }
 
 }

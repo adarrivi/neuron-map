@@ -22,11 +22,11 @@ public class BrainJPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    @Value("${brain.height}")
+    @Value("${frame.height}")
     private int height;
-    @Value("${brain.width}")
+    @Value("${frame.width}")
     private int width;
-    @Value("${brain.border}")
+    @Value("${frame.border}")
     private int border;
 
     @Autowired

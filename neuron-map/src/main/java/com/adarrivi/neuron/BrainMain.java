@@ -25,11 +25,11 @@ public class BrainMain extends JFrame implements Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(BrainMain.class);
 
-    @Value("${brain.height}")
+    @Value("${frame.height}")
     private int frameHeight;
-    @Value("${brain.width}")
+    @Value("${frame.width}")
     private int frameWidth;
-    @Value("${brain.border}")
+    @Value("${frame.border}")
     private int border;
 
     @Autowired

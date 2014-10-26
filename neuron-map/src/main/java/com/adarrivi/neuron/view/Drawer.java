@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.adarrivi.neuron.model.Dendrite;
+import com.adarrivi.neuron.model.Axon;
 import com.adarrivi.neuron.model.Neuron;
 import com.adarrivi.neuron.model.NeuronContainer;
 import com.adarrivi.neuron.model.Randomizer;
@@ -19,14 +19,12 @@ import com.adarrivi.neuron.model.Randomizer;
 @Component
 public class Drawer {
 
-    @Value("${brain.height}")
+    @Value("${frame.height}")
     private int height;
-    @Value("${brain.width}")
+    @Value("${frame.width}")
     private int width;
-    @Value("${brain.border}")
+    @Value("${frame.border}")
     private int border;
-    @Value("${brain.dendrite.maxLiveSpan}")
-    private int maxLifeSpan;
 
     @Autowired
     private NeuronContainer neuronContainer;
@@ -42,14 +40,25 @@ public class Drawer {
     }
 
     private void drawNeuron(Neuron neuron, Graphics2D graphics2d) {
-        Image image = ImageCache.NEURON;
+        DrawPosition neuronDrawPosition = toDrawPosition(neuron);
+        drawElement(getNeuronImage(neuron), neuronDrawPosition, graphics2d);
+        // graphics2d.setColor(Color.BLACK);
+        // graphics2d.drawString(neuron.getCurrentPotencial() + "",
+        // neuronDrawPosition.getX(), neuronDrawPosition.getY());
+        neuron.getAxons().forEach(axon -> drawConnection(neuron, axon, graphics2d));
+    }
+
+    private Image getNeuronImage(Neuron neuron) {
         if (neuron.isInputNeuron()) {
-            image = ImageCache.INPUT_NEURON;
-        } else if (neuron.isIsolated()) {
-            image = ImageCache.ISOLATED_NEURON;
+            return ImageCache.INPUT_NEURON;
         }
-        drawElement(image, toDrawPosition(neuron), graphics2d);
-        neuron.getAccesibleDendrites().forEach(dendrite -> drawConnection(neuron, dendrite, graphics2d));
+        if (neuron.isSending() || neuron.isActivated()) {
+            return ImageCache.NEURON_ACTIVATED;
+        }
+        if (!neuron.isRestPotencial()) {
+            return ImageCache.NEURON_HIGH;
+        }
+        return ImageCache.NEURON_LOW;
     }
 
     private DrawPosition toDrawPosition(Neuron neuron) {
@@ -72,19 +81,11 @@ public class Drawer {
         graphics2d.drawImage(image, centerX, centerY, null);
     }
 
-    private void drawConnection(Neuron neuron, Dendrite dendrite, Graphics2D graphics2d) {
+    private void drawConnection(Neuron neuron, Axon axon, Graphics2D graphics2d) {
         DrawPosition position1 = toDrawPosition(neuron);
-        DrawPosition position2 = toDrawPosition(dendrite.getNeuron());
-        graphics2d.setColor(getConnectionColor(dendrite));
+        DrawPosition position2 = toDrawPosition(axon.getDestinationNeuron());
+        graphics2d.setColor(getTransparentColors(Color.WHITE, 10).get(3));
         graphics2d.drawLine(position1.getX(), position1.getY(), position2.getX(), position2.getY());
-    }
-
-    private Color getConnectionColor(Dendrite dendrite) {
-        int lifeSpan = dendrite.getLifeSpan();
-        if (lifeSpan > maxLifeSpan) {
-            return Color.WHITE;
-        }
-        return getTransparentColors(Color.WHITE, maxLifeSpan + 1).get(lifeSpan);
     }
 
     private List<Color> getTransparentColors(Color color, int bands) {
@@ -95,24 +96,4 @@ public class Drawer {
         }
         return bandList;
     }
-
-    private void drawRectangle(DrawPosition position1, DrawPosition position2, Graphics2D graphics2d) {
-        graphics2d.drawLine(position1.getX(), position1.getY(), position2.getX(), position1.getY());
-        graphics2d.drawLine(position1.getX(), position1.getY(), position1.getX(), position2.getY());
-        graphics2d.drawLine(position1.getX(), position2.getY(), position2.getX(), position2.getY());
-        graphics2d.drawLine(position2.getX(), position1.getY(), position2.getX(), position2.getY());
-    }
-
-    public static Color darken(Color color, double fraction) {
-
-        int red = (int) Math.round(Math.max(0, color.getRed() - 255 * fraction));
-        int green = (int) Math.round(Math.max(0, color.getGreen() - 255 * fraction));
-        int blue = (int) Math.round(Math.max(0, color.getBlue() - 255 * fraction));
-
-        int alpha = color.getAlpha();
-
-        return new Color(red, green, blue, alpha);
-
-    }
-
 }
