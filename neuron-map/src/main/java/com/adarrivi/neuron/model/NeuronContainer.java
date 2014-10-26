@@ -2,9 +2,7 @@ package com.adarrivi.neuron.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,18 +15,21 @@ public class NeuronContainer {
     private int numberOfNeurons;
     @Value("${brain.neuron.accessible.distance}")
     private int neuronAccessibleDistance;
+    @Value("${brain.neuron.active}")
+    private int activeNeuronNumber;
 
     @Autowired
     private Randomizer randomizer;
 
-    private List<Neuron> neurons = new ArrayList<>();
+    private List<Neuron> neurons;
 
-    @PostConstruct
     public void initialize() {
+        neurons = new ArrayList<>();
         for (int i = 0; i < numberOfNeurons; i++) {
             addNewRandomNeuron();
         }
         setUpInitialConntections();
+        setActiveNeurons();
     }
 
     private void addNewRandomNeuron() {
@@ -42,10 +43,21 @@ public class NeuronContainer {
     private void setAccesibleNeurons(Neuron neuron) {
         List<Neuron> allNeurons = new ArrayList<>(neurons);
         allNeurons.remove(neuron);
-        List<Neuron> allAccesible = allNeurons.stream()
-                .filter(accesible -> neuron.getPosition().distance(accesible.getPosition()) < neuronAccessibleDistance)
-                .collect(Collectors.toList());
-        neuron.setAccesibleNeurons(allAccesible);
+        Stream<Neuron> allAccesibleNeurons = allNeurons.stream().filter(
+                accesible -> neuron.getPosition().distance(accesible.getPosition()) < neuronAccessibleDistance);
+        allAccesibleNeurons.forEach(accesible -> addNewConnection(neuron, accesible));
+    }
+
+    private void addNewConnection(Neuron neuron, Neuron accessible) {
+        Dendrite accessibleDendrite = new Dendrite(accessible);
+        accessible.addDentrite(accessibleDendrite);
+        neuron.addAccessibleDendrite(accessibleDendrite);
+    }
+
+    private void setActiveNeurons() {
+        for (int i = 0; i < activeNeuronNumber; i++) {
+            randomizer.getRandomElement(neurons).setInputNeuron(true);
+        }
     }
 
     public List<Neuron> getNeurons() {

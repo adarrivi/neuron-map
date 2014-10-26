@@ -4,11 +4,14 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.adarrivi.neuron.model.Dendrite;
 import com.adarrivi.neuron.model.Neuron;
 import com.adarrivi.neuron.model.NeuronContainer;
 import com.adarrivi.neuron.model.Randomizer;
@@ -30,7 +33,6 @@ public class Drawer {
 
     public void propagateDrawingAction(Graphics2D graphics2d) {
         drawEntities(graphics2d);
-        graphics2d.setColor(Color.BLUE);
     }
 
     private void drawEntities(Graphics2D graphics2d) {
@@ -38,8 +40,14 @@ public class Drawer {
     }
 
     private void drawNeuron(Neuron neuron, Graphics2D graphics2d) {
-        drawElement(ImageCache.NEURON, toDrawPosition(neuron), graphics2d);
-        neuron.getAccesibleNeurons().forEach(accessible -> drawConnection(toDrawPosition(neuron), toDrawPosition(accessible), graphics2d));
+        Image image = ImageCache.NEURON;
+        if (neuron.isInputNeuron()) {
+            image = ImageCache.INPUT_NEURON;
+        } else if (neuron.isIsolated()) {
+            image = ImageCache.ISOLATED_NEURON;
+        }
+        drawElement(image, toDrawPosition(neuron), graphics2d);
+        neuron.getAccesibleDendrites().forEach(dendrite -> drawConnection(neuron, dendrite, graphics2d));
     }
 
     private DrawPosition toDrawPosition(Neuron neuron) {
@@ -62,9 +70,28 @@ public class Drawer {
         graphics2d.drawImage(image, centerX, centerY, null);
     }
 
-    private void drawConnection(DrawPosition position1, DrawPosition position2, Graphics2D graphics2d) {
-        graphics2d.setColor(Color.RED);
+    private void drawConnection(Neuron neuron, Dendrite dendrite, Graphics2D graphics2d) {
+        DrawPosition position1 = toDrawPosition(neuron);
+        DrawPosition position2 = toDrawPosition(dendrite.getNeuron());
+        graphics2d.setColor(getConnectionColor(dendrite));
         graphics2d.drawLine(position1.getX(), position1.getY(), position2.getX(), position2.getY());
+    }
+
+    private Color getConnectionColor(Dendrite dendrite) {
+        int lifeSpan = dendrite.getLifeSpan();
+        if (lifeSpan > 5) {
+            return Color.WHITE;
+        }
+        return getTransparentColors(Color.WHITE, 6).get(lifeSpan);
+    }
+
+    private List<Color> getTransparentColors(Color color, int bands) {
+        List<Color> bandList = new ArrayList<>();
+        int offset = 220 / bands;
+        for (int currentBand = 0; currentBand < 255; currentBand += offset) {
+            bandList.add(new Color(color.getRed(), color.getGreen(), color.getBlue(), currentBand));
+        }
+        return bandList;
     }
 
     private void drawRectangle(DrawPosition position1, DrawPosition position2, Graphics2D graphics2d) {
@@ -72,6 +99,18 @@ public class Drawer {
         graphics2d.drawLine(position1.getX(), position1.getY(), position1.getX(), position2.getY());
         graphics2d.drawLine(position1.getX(), position2.getY(), position2.getX(), position2.getY());
         graphics2d.drawLine(position2.getX(), position1.getY(), position2.getX(), position2.getY());
+    }
+
+    public static Color darken(Color color, double fraction) {
+
+        int red = (int) Math.round(Math.max(0, color.getRed() - 255 * fraction));
+        int green = (int) Math.round(Math.max(0, color.getGreen() - 255 * fraction));
+        int blue = (int) Math.round(Math.max(0, color.getBlue() - 255 * fraction));
+
+        int alpha = color.getAlpha();
+
+        return new Color(red, green, blue, alpha);
+
     }
 
 }

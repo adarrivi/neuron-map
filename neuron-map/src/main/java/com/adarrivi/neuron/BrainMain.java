@@ -12,6 +12,7 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.stereotype.Component;
 
 import com.adarrivi.neuron.config.NeuronContext;
+import com.adarrivi.neuron.model.NeuronContainer;
 import com.adarrivi.neuron.view.BrainJPanel;
 
 @Component
@@ -29,6 +30,8 @@ public class BrainMain extends JFrame implements Runnable {
 
     @Autowired
     private BrainJPanel brainJPanel;
+    @Autowired
+    private NeuronContainer neuronContainer;
 
     @SuppressWarnings("resource")
     public static void main(String[] args) {
@@ -50,6 +53,7 @@ public class BrainMain extends JFrame implements Runnable {
     public void run() {
         centerFrame();
         add(brainJPanel);
+        neuronContainer.initialize();
         LOG.debug("Container initialized");
     }
 
@@ -58,4 +62,5 @@ public class BrainMain extends JFrame implements Runnable {
         // set location must be called after setSize to center the frame
         setLocationRelativeTo(null);
     }
+
 }
