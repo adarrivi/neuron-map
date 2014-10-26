@@ -1,5 +1,8 @@
 package com.adarrivi.neuron;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.adarrivi.neuron.config.NeuronContext;
 import com.adarrivi.neuron.model.NeuronContainer;
+import com.adarrivi.neuron.step.Stepper;
 import com.adarrivi.neuron.view.BrainJPanel;
 
 @Component
@@ -32,12 +36,15 @@ public class BrainMain extends JFrame implements Runnable {
     private BrainJPanel brainJPanel;
     @Autowired
     private NeuronContainer neuronContainer;
+    @Autowired
+    private Stepper stepper;
+
+    private ExecutorService executor = Executors.newFixedThreadPool(1);
 
     @SuppressWarnings("resource")
     public static void main(String[] args) {
         AbstractApplicationContext applicationContext = new AnnotationConfigApplicationContext(NeuronContext.class);
         applicationContext.registerShutdownHook();
-        LOG.debug("Application context loaded");
         BrainMain colony = applicationContext.getBean(BrainMain.class);
         SwingUtilities.invokeLater(colony);
     }
@@ -55,6 +62,7 @@ public class BrainMain extends JFrame implements Runnable {
         add(brainJPanel);
         neuronContainer.initialize();
         LOG.debug("Container initialized");
+        executor.execute(() -> stepper.stepUntilCancel());
     }
 
     private void centerFrame() {
