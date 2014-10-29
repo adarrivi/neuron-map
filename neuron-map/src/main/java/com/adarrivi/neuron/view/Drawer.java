@@ -2,8 +2,6 @@ package com.adarrivi.neuron.view;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +25,11 @@ public class Drawer {
     @Value("${frame.border}")
     private int border;
 
+    @Value("${brain.neuron.potencial.threshold}")
+    private int minPotencial;
+    @Value("${brain.neuron.potencial.rest}")
+    private int maxPotencial;
+
     @Autowired
     private NeuronContainer neuronContainer;
     @Autowired
@@ -42,47 +45,32 @@ public class Drawer {
 
     private void drawNeuron(Neuron neuron, Graphics2D graphics2d) {
         DrawPosition neuronDrawPosition = toDrawPosition(neuron.getPosition());
-        drawElement(getNeuronImage(neuron), neuronDrawPosition, graphics2d);
-        // graphics2d.setColor(Color.BLACK);
-        // graphics2d.drawString(neuron.getCurrentPotencial() + "",
-        // neuronDrawPosition.getX(), neuronDrawPosition.getY());
-        neuron.getAxons().forEach(axon -> drawConnection(neuron, axon, graphics2d));
+        Color color = new Color(Color.GREEN.getRed(), Color.GREEN.getGreen(), Color.GREEN.getBlue(), asAlpha(neuron.getCurrentPotencial()));
+        graphics2d.setColor(color);
+        drawCenteredCircle(graphics2d, neuronDrawPosition.getX(), neuronDrawPosition.getY(), 5);
     }
 
-    private Image getNeuronImage(Neuron neuron) {
-        if (neuron.isInputNeuron()) {
-            return ImageCache.INPUT_NEURON;
+    private int asAlpha(int potencial) {
+        int min = 50;
+        int max = 254;
+
+        if (potencial > maxPotencial) {
+            return max;
         }
-        if (neuron.isOutputNeuron()) {
-            return ImageCache.OUTPUT_NEURON;
+        if (potencial < minPotencial) {
+            return min;
         }
-        if (neuron.isSending() || neuron.isActivated()) {
-            return ImageCache.NEURON_ACTIVATED;
-        }
-        if (!neuron.isRestPotencial()) {
-            return ImageCache.NEURON_HIGH;
-        }
-        return ImageCache.NEURON_LOW;
+        return (((potencial - (minPotencial)) * (max - min)) / (maxPotencial - (minPotencial))) + min;
+    }
+
+    public void drawCenteredCircle(Graphics2D g, int x, int y, int r) {
+        x = x - (r / 2);
+        y = y - (r / 2);
+        g.fillOval(x, y, r, r);
     }
 
     private DrawPosition toDrawPosition(BrainPosition position) {
         return new DrawPosition(border, position);
-    }
-
-    private void drawElement(Image image, DrawPosition position, Graphics2D graphics2d) {
-        AffineTransform oldTransform = graphics2d.getTransform();
-        AffineTransform rotator = AffineTransform.getRotateInstance(position.getRotation(), position.getX(), position.getY());
-        graphics2d.setTransform(rotator);
-        drawImage(image, position, graphics2d);
-        graphics2d.setTransform(oldTransform);
-    }
-
-    private void drawImage(Image image, DrawPosition position, Graphics2D graphics2d) {
-        int width = image.getWidth(null);
-        int height = image.getHeight(null);
-        int centerX = position.getX() - (width / 2);
-        int centerY = position.getY() - (height / 2);
-        graphics2d.drawImage(image, centerX, centerY, null);
     }
 
     private void drawConnection(Neuron neuron, Axon axon, Graphics2D graphics2d) {
