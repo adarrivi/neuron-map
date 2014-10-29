@@ -2,15 +2,23 @@ package com.adarrivi.neuron.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import com.adarrivi.neuron.logic.NeuronLogic;
+
 @Component
 public class NeuronContainer {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(NeuronContainer.class);
 
     @Value("${brain.numberOfNeurons}")
     private int numberOfNeurons;
@@ -30,6 +38,8 @@ public class NeuronContainer {
     private Randomizer randomizer;
     @Autowired
     private ApplicationContext applicationContext;
+    @Autowired
+    private NeuronLogic neuronLogic;
 
     private List<Neuron> neurons;
 
@@ -39,19 +49,28 @@ public class NeuronContainer {
         // setInputNeurons();
     }
 
+    public void stepNeurons() {
+        List<Future<String>> collect = neurons.stream().map(neuron -> neuronLogic.step(neuron)).collect(Collectors.toList());
+        for (Future<String> future : collect) {
+            try {
+                future.get();
+            } catch (InterruptedException | ExecutionException e) {
+                LOGGER.debug("Interrupted {}", e);
+            }
+        }
+    }
+
     private void createRandomNeurons() {
         neurons = new ArrayList<>();
         for (int i = 0; i < numberOfNeurons; i++) {
-            neurons.add(applicationContext.getBean(Neuron.class));
+            neurons.add(neuronLogic.createRandomNeuron());
         }
-        Neuron origin = applicationContext.getBean(Neuron.class);
+        Neuron origin = neuronLogic.createNeuron(new BrainPosition(border, border, 0));
         origin.setInputNeuron();
-        origin.setPosition(new BrainPosition(border, border, 0));
         neurons.add(origin);
 
-        Neuron output = applicationContext.getBean(Neuron.class);
+        Neuron output = neuronLogic.createNeuron(new BrainPosition(width - border, height - border, 0));
         output.setOutputNeuron();
-        output.setPosition(new BrainPosition(width - border, height - border, 0));
         neurons.add(output);
     }
 

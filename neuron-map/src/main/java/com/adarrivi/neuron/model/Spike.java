@@ -1,18 +1,18 @@
 package com.adarrivi.neuron.model;
 
-class Spike {
+public class Spike {
 
     private int intensity;
 
-    Spike(int intensity) {
+    public Spike(int intensity) {
         this.intensity = intensity;
     }
 
-    int getIntensity() {
+    public int getIntensity() {
         return intensity;
     }
 
-    void setIntensity(int intensity) {
+    public void setIntensity(int intensity) {
         this.intensity = intensity;
     }
 

@@ -11,11 +11,11 @@ public class Dendrite {
 
     }
 
-    Optional<Spike> getSpike() {
+    public Optional<Spike> getSpike() {
         return spike;
     }
 
-    void dismiss() {
+    public void dismiss() {
         spike = Optional.empty();
     }
 
