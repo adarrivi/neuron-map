@@ -70,8 +70,18 @@ public class Stepper {
         }
     }
 
+    private long skippedSteps;
+
     private boolean screenNeedsToBeUpdated() {
-        return skipFrames == 0 || steps % skipFrames == 0;
+        if (skipFrames == 0) {
+            return true;
+        }
+        if (skippedSteps >= skipFrames) {
+            skippedSteps = 0;
+            return true;
+        }
+        skippedSteps++;
+        return false;
     }
 
 }
