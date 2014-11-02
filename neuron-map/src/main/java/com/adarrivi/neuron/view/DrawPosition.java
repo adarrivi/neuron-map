@@ -6,16 +6,14 @@ class DrawPosition {
 
     private int x;
     private int y;
-    private double rotation;
 
     DrawPosition(int offset, BrainPosition position) {
-        this(offset, position.getX(), position.getY(), position.getRotation());
+        this(offset, position.getX(), position.getY());
     }
 
-    DrawPosition(int offset, int x, int y, double rotation) {
+    DrawPosition(int offset, int x, int y) {
         this.x = offset + x;
         this.y = offset + y;
-        this.rotation = rotation;
     }
 
     int getX() {
@@ -24,10 +22,6 @@ class DrawPosition {
 
     int getY() {
         return y;
-    }
-
-    double getRotation() {
-        return rotation;
     }
 
 }

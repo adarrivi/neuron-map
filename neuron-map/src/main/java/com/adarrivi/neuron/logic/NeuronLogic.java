@@ -3,7 +3,6 @@ package com.adarrivi.neuron.logic;
 import java.util.Optional;
 import java.util.concurrent.Future;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -13,7 +12,6 @@ import com.adarrivi.neuron.model.Axon;
 import com.adarrivi.neuron.model.BrainPosition;
 import com.adarrivi.neuron.model.Dendrite;
 import com.adarrivi.neuron.model.Neuron;
-import com.adarrivi.neuron.model.Randomizer;
 import com.adarrivi.neuron.model.Spike;
 
 @Component
@@ -23,13 +21,6 @@ public class NeuronLogic {
     private int restPotencial;
     @Value("${brain.neuron.potencial.threshold}")
     private int thresholdPotencial;
-
-    @Autowired
-    private Randomizer randomizer;
-
-    public Neuron createRandomNeuron() {
-        return createNeuron(randomizer.getRandomPosition());
-    }
 
     public Neuron createNeuron(BrainPosition position) {
         return new Neuron(restPotencial, position);

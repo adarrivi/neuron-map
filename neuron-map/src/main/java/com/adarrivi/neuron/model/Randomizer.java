@@ -18,15 +18,7 @@ public class Randomizer {
     private int frameWidth;
 
     public BrainPosition getRandomPosition() {
-        return new BrainPosition(RANDOM.nextInt(frameWidth), RANDOM.nextInt(frameHeight), getRandomRotation());
-    }
-
-    public double getRandomRotation() {
-        return getRandomDouble(2 * Math.PI);
-    }
-
-    private double getRandomDouble(double limit) {
-        return RANDOM.nextDouble() * limit;
+        return new BrainPosition(RANDOM.nextInt(frameWidth), RANDOM.nextInt(frameHeight));
     }
 
     public <T> Optional<T> getRandomElement(List<T> list) {

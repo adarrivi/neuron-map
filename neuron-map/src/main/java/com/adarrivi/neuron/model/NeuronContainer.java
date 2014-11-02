@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import com.adarrivi.neuron.brain.section.SectionGrid;
 import com.adarrivi.neuron.logic.NeuronLogic;
 
 @Component
@@ -20,22 +21,11 @@ public class NeuronContainer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NeuronContainer.class);
 
-    @Value("${brain.numberOfNeurons}")
-    private int numberOfNeurons;
     @Value("${brain.neuron.accessible.distance}")
-    private int neuronAccessibleDistance;
-    @Value("${brain.inputNeurons}")
-    private int activeNeuronNumber;
-
-    @Value("${frame.height}")
-    private int height;
-    @Value("${frame.width}")
-    private int width;
-    @Value("${frame.border}")
-    private int border;
+    private int accessibleDistance;
 
     @Autowired
-    private Randomizer randomizer;
+    private SectionGrid sectionGrid;
     @Autowired
     private ApplicationContext applicationContext;
     @Autowired
@@ -62,16 +52,19 @@ public class NeuronContainer {
 
     private void createRandomNeurons() {
         neurons = new ArrayList<>();
-        for (int i = 0; i < numberOfNeurons; i++) {
-            neurons.add(neuronLogic.createRandomNeuron());
-        }
-        Neuron origin = neuronLogic.createNeuron(new BrainPosition(border, border, 0));
-        origin.setInputNeuron();
-        neurons.add(origin);
+        neurons.addAll(createRouteOfNeurons(new BrainPosition(0, 0), new BrainPosition(0, 600)));
+        neurons.addAll(createRouteOfNeurons(new BrainPosition(200, 0), new BrainPosition(200, 600)));
+        neurons.addAll(createRouteOfNeurons(new BrainPosition(300, 0), new BrainPosition(600, 600)));
+    }
 
-        Neuron output = neuronLogic.createNeuron(new BrainPosition(width - border, height - border, 0));
-        output.setOutputNeuron();
-        neurons.add(output);
+    private List<Neuron> createRouteOfNeurons(BrainPosition from, BrainPosition to) {
+        List<BrainPosition> route = sectionGrid.getRoute(from, to, 70);
+        List<Neuron> neuronsInRoute = route.stream().map(position -> neuronLogic.createNeuron(position)).collect(Collectors.toList());
+        for (int i = 0; i < neuronsInRoute.size() - 1; i++) {
+            connectWithAxon(neuronsInRoute.get(i), neuronsInRoute.get(i + 1));
+        }
+        return neuronsInRoute;
+
     }
 
     private void setAxonConnectionToAccessibleNeurons(Neuron neuron) {
@@ -82,7 +75,7 @@ public class NeuronContainer {
     private List<Neuron> getAccessibleNeurons(Neuron neuron) {
         List<Neuron> allNeurons = new ArrayList<>(neurons);
         allNeurons.remove(neuron);
-        return allNeurons.stream().filter(accessible -> neuron.getPosition().distance(accessible.getPosition()) < neuronAccessibleDistance)
+        return allNeurons.stream().filter(accessible -> neuron.getPosition().distance(accessible.getPosition()) < accessibleDistance)
                 .collect(Collectors.toList());
     }
 
@@ -93,12 +86,6 @@ public class NeuronContainer {
         fromAxon.setDendrite(toDendrite);
         fromAxon.setDestinationNeuron(toNeuron);
         fromNeuron.addAxon(fromAxon);
-    }
-
-    private void setInputNeurons() {
-        for (int i = 0; i < activeNeuronNumber; i++) {
-            randomizer.getRandomElement(neurons).get().setInputNeuron();
-        }
     }
 
     public List<Neuron> getNeurons() {

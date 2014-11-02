@@ -9,11 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.adarrivi.neuron.brain.section.SectionGrid;
 import com.adarrivi.neuron.model.Axon;
 import com.adarrivi.neuron.model.BrainPosition;
 import com.adarrivi.neuron.model.Neuron;
 import com.adarrivi.neuron.model.NeuronContainer;
-import com.adarrivi.neuron.model.Randomizer;
 
 @Component
 public class Drawer {
@@ -33,21 +33,40 @@ public class Drawer {
     @Autowired
     private NeuronContainer neuronContainer;
     @Autowired
-    private Randomizer randomizer;
+    private SectionGrid sectionGrid;
 
     public void propagateDrawingAction(Graphics2D graphics2d) {
         drawEntities(graphics2d);
+        drawSections(graphics2d);
     }
 
     private void drawEntities(Graphics2D graphics2d) {
         neuronContainer.getNeurons().forEach(neuron -> drawNeuron(neuron, graphics2d));
     }
 
+    private void drawSections(Graphics2D graphics2d) {
+        sectionGrid.getSectionOrigins().forEach(origin -> drawSection(origin, graphics2d));
+    }
+
+    private void drawSection(BrainPosition position, Graphics2D graphics2d) {
+        int length = sectionGrid.getSectionLength();
+        BrainPosition position2 = new BrainPosition(position.getX() + length, position.getY() + length);
+        drawRectangle(toDrawPosition(position), toDrawPosition(position2), graphics2d);
+    }
+
+    private void drawRectangle(DrawPosition position1, DrawPosition position2, Graphics2D graphics2d) {
+        graphics2d.drawLine(position1.getX(), position1.getY(), position2.getX(), position1.getY());
+        graphics2d.drawLine(position1.getX(), position1.getY(), position1.getX(), position2.getY());
+        graphics2d.drawLine(position1.getX(), position2.getY(), position2.getX(), position2.getY());
+        graphics2d.drawLine(position2.getX(), position1.getY(), position2.getX(), position2.getY());
+    }
+
     private void drawNeuron(Neuron neuron, Graphics2D graphics2d) {
         DrawPosition neuronDrawPosition = toDrawPosition(neuron.getPosition());
-        Color color = new Color(Color.GREEN.getRed(), Color.GREEN.getGreen(), Color.GREEN.getBlue(), asAlpha(neuron.getCurrentPotencial()));
+        Color color = new Color(Color.GREEN.getRed(), Color.GREEN.getGreen(), Color.GREEN.getBlue(), 255);
         graphics2d.setColor(color);
         drawCenteredCircle(graphics2d, neuronDrawPosition.getX(), neuronDrawPosition.getY(), 5);
+        neuron.getAxons().forEach(axon -> drawConnection(neuron, axon, graphics2d));
     }
 
     private int asAlpha(int potencial) {

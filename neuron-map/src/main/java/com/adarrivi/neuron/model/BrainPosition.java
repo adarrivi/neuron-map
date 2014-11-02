@@ -1,16 +1,13 @@
 package com.adarrivi.neuron.model;
 
-
 public class BrainPosition {
 
     private int x;
     private int y;
-    private double rotation;
 
-    public BrainPosition(int x, int y, double rotation) {
+    public BrainPosition(int x, int y) {
         this.x = x;
         this.y = y;
-        this.rotation = rotation;
     }
 
     public int getX() {
@@ -19,10 +16,6 @@ public class BrainPosition {
 
     public int getY() {
         return y;
-    }
-
-    public double getRotation() {
-        return rotation;
     }
 
     public double distance(BrainPosition pt) {
