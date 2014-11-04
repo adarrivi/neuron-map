@@ -45,8 +45,9 @@ public class SectionGridImplTest {
 
     private void thenSectionShouldBe(int expectedXGrid, int expectedYGrid) {
         Assert.assertTrue(outputSection.isPresent());
-        Assert.assertTrue(outputSection.get().getGridXIndex() == expectedXGrid);
-        Assert.assertTrue(outputSection.get().getGridYIndex() == expectedYGrid);
+        Section section = outputSection.get();
+        Assert.assertEquals(expectedXGrid * SECTION_LENGTH, section.getOriginPosition().getX());
+        Assert.assertEquals(expectedYGrid * SECTION_LENGTH, section.getOriginPosition().getY());
     }
 
     @Test

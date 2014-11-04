@@ -1,28 +1,40 @@
-package com.adarrivi.neuron.model;
+package com.adarrivi.neuron.brain.neuron;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.adarrivi.neuron.model.Axon;
+import com.adarrivi.neuron.model.BrainPosition;
+import com.adarrivi.neuron.model.Dendrite;
 
 public class Neuron {
 
     private BrainPosition position;
     private List<Axon> axons = new ArrayList<>();
     private List<Dendrite> dendrites = new ArrayList<>();
-    private boolean inputNeuron;
-    private boolean outputNeuron;
     private boolean receivedOnce;
     private int currentPotencial;
+    private NeuronType type;
 
-    public Neuron(int currentPotencial, BrainPosition position) {
+    Neuron(int currentPotencial, BrainPosition position, NeuronType type) {
         this.currentPotencial = currentPotencial;
         this.position = position;
+        this.type = type;
     }
 
-    public void setPosition(BrainPosition position) {
+    NeuronType getType() {
+        return type;
+    }
+
+    void setType(NeuronType type) {
+        this.type = type;
+    }
+
+    void setPosition(BrainPosition position) {
         this.position = position;
     }
 
-    public void addDentrite(Dendrite dendrite) {
+    void addDentrite(Dendrite dendrite) {
         dendrites.add(dendrite);
     }
 
@@ -34,47 +46,31 @@ public class Neuron {
         return axons.stream().filter(axon -> !axon.isReady()).findAny().isPresent();
     }
 
-    public boolean isInputNeuron() {
-        return inputNeuron;
-    }
-
-    public void setInputNeuron() {
-        this.inputNeuron = true;
-    }
-
-    public void setOutputNeuron() {
-        this.outputNeuron = true;
-    }
-
-    public void addAxon(Axon axon) {
+    void addAxon(Axon axon) {
         axons.add(axon);
     }
 
-    public List<Axon> getAxons() {
+    List<Axon> getAxons() {
         return axons;
     }
 
-    public int getCurrentPotencial() {
+    int getCurrentPotencial() {
         return currentPotencial;
     }
 
-    public boolean isOutputNeuron() {
-        return outputNeuron;
-    }
-
-    public boolean isReceivedOnce() {
+    boolean isReceivedOnce() {
         return receivedOnce;
     }
 
-    public List<Dendrite> getDendrites() {
+    List<Dendrite> getDendrites() {
         return dendrites;
     }
 
-    public void setReceivedOnce(boolean receivedOnce) {
+    void setReceivedOnce(boolean receivedOnce) {
         this.receivedOnce = receivedOnce;
     }
 
-    public void setCurrentPotencial(int currentPotencial) {
+    void setCurrentPotencial(int currentPotencial) {
         this.currentPotencial = currentPotencial;
     }
 

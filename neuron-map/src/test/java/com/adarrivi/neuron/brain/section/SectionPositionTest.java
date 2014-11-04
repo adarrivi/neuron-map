@@ -5,11 +5,11 @@ import org.junit.Test;
 
 import com.adarrivi.neuron.model.BrainPosition;
 
-public class SectionTest {
+public class SectionPositionTest {
 
     private static final int SIDE_LENGTH = 20;
 
-    private Section victim;
+    private SectionPosition victim;
     private BrainPosition inputPosition;
     private boolean outputBoolean;
 
@@ -22,7 +22,7 @@ public class SectionTest {
     }
 
     private void givenSection(BrainPosition origin) {
-        victim = new Section(0, 0, SIDE_LENGTH, origin);
+        victim = new SectionPosition(SIDE_LENGTH, origin);
     }
 
     private void givenPosition(BrainPosition position) {

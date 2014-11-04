@@ -1,4 +1,4 @@
-package com.adarrivi.neuron.logic;
+package com.adarrivi.neuron.brain.neuron;
 
 import java.util.Optional;
 import java.util.concurrent.Future;
@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import com.adarrivi.neuron.model.Axon;
 import com.adarrivi.neuron.model.BrainPosition;
 import com.adarrivi.neuron.model.Dendrite;
-import com.adarrivi.neuron.model.Neuron;
 import com.adarrivi.neuron.model.Spike;
 
 @Component
@@ -22,12 +21,12 @@ public class NeuronLogic {
     @Value("${brain.neuron.potencial.threshold}")
     private int thresholdPotencial;
 
-    public Neuron createNeuron(BrainPosition position) {
-        return new Neuron(restPotencial, position);
+    public Neuron createNeuron(BrainPosition position, NeuronType type) {
+        return new Neuron(restPotencial, position, type);
     }
 
     public boolean isActivated(Neuron neuron) {
-        return neuron.isInputNeuron() || neuron.getCurrentPotencial() >= thresholdPotencial;
+        return NeuronType.INPUT.equals(neuron.getType()) || neuron.getCurrentPotencial() >= thresholdPotencial;
     }
 
     @Async

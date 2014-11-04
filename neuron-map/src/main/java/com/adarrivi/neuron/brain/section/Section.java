@@ -1,53 +1,40 @@
 package com.adarrivi.neuron.brain.section;
 
-import java.util.Random;
-
 import com.adarrivi.neuron.model.BrainPosition;
 
 public class Section {
 
-    private static final Random RANDOM = new Random();
+    private SectionPosition position;
+    private PotencialChange fastPotencialChange;
+    private PotencialChange longPotencialChange;
 
-    private int gridXIndex;
-    private int gridYIndex;
-    private int sideLenght;
-    private BrainPosition position;
+    Section(int fastPotencialMaxSteps, int longPotencialMaxSteps) {
+        this.fastPotencialChange = new PotencialChange(fastPotencialMaxSteps);
+        this.longPotencialChange = new PotencialChange(longPotencialMaxSteps);
+    }
 
-    Section(int gridXIndex, int gridYIndex, int sideLenght, BrainPosition position) {
-        this.gridXIndex = gridXIndex;
-        this.gridYIndex = gridYIndex;
-        this.sideLenght = sideLenght;
+    void setPosition(SectionPosition position) {
         this.position = position;
     }
 
-    boolean containsPosition(BrainPosition inputPosition) {
-        return isInsideAxis(inputPosition.getX(), position.getX()) && isInsideAxis(inputPosition.getY(), position.getY());
+    PotencialChange getFastPotencialChange() {
+        return fastPotencialChange;
     }
 
-    private boolean isInsideAxis(int inputAxisPosition, int axis) {
-        return inputAxisPosition >= axis && inputAxisPosition < axis + sideLenght;
-    }
-
-    int getGridXIndex() {
-        return gridXIndex;
-    }
-
-    int getGridYIndex() {
-        return gridYIndex;
+    PotencialChange getLongPotencialChange() {
+        return longPotencialChange;
     }
 
     BrainPosition getRandomPosition() {
-        int x = getRandomWithingSide();
-        int y = getRandomWithingSide();
-        return new BrainPosition(x + position.getX(), y + position.getY());
+        return position.getRandomPosition();
     }
 
-    private int getRandomWithingSide() {
-        return RANDOM.nextInt(sideLenght);
+    boolean containsPosition(BrainPosition inputPosition) {
+        return position.containsPosition(inputPosition);
     }
 
-    BrainPosition getPosition() {
-        return position;
+    BrainPosition getOriginPosition() {
+        return position.getOriginPosition();
     }
 
 }

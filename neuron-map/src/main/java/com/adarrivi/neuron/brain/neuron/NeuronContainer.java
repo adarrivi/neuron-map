@@ -1,4 +1,4 @@
-package com.adarrivi.neuron.model;
+package com.adarrivi.neuron.brain.neuron;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import com.adarrivi.neuron.brain.section.SectionGrid;
-import com.adarrivi.neuron.logic.NeuronLogic;
+import com.adarrivi.neuron.model.Axon;
+import com.adarrivi.neuron.model.BrainPosition;
+import com.adarrivi.neuron.model.Dendrite;
 
 @Component
 public class NeuronContainer {
@@ -23,6 +25,8 @@ public class NeuronContainer {
 
     @Value("${brain.neuron.accessible.distance}")
     private int accessibleDistance;
+    @Value("${brain.grid.bindingNeuronsPerRoute}")
+    private int bindingNeuronsPerRoute;
 
     @Autowired
     private SectionGrid sectionGrid;
@@ -36,7 +40,6 @@ public class NeuronContainer {
     public void initialize() {
         createRandomNeurons();
         neurons.forEach(this::setAxonConnectionToAccessibleNeurons);
-        // setInputNeurons();
     }
 
     public void stepNeurons() {
@@ -52,14 +55,16 @@ public class NeuronContainer {
 
     private void createRandomNeurons() {
         neurons = new ArrayList<>();
-        neurons.addAll(createRouteOfNeurons(new BrainPosition(0, 0), new BrainPosition(0, 600)));
-        neurons.addAll(createRouteOfNeurons(new BrainPosition(200, 0), new BrainPosition(200, 600)));
-        neurons.addAll(createRouteOfNeurons(new BrainPosition(300, 0), new BrainPosition(600, 600)));
+        neurons.addAll(createRouteOfNeurons(new BrainPosition(0, 0), new BrainPosition(0, 500)));
+        neurons.addAll(createRouteOfNeurons(new BrainPosition(300, 0), new BrainPosition(300, 500)));
     }
 
     private List<Neuron> createRouteOfNeurons(BrainPosition from, BrainPosition to) {
-        List<BrainPosition> route = sectionGrid.getRoute(from, to, 70);
-        List<Neuron> neuronsInRoute = route.stream().map(position -> neuronLogic.createNeuron(position)).collect(Collectors.toList());
+        List<BrainPosition> route = sectionGrid.getRoute(from, to, bindingNeuronsPerRoute);
+        List<Neuron> neuronsInRoute = route.stream().map(position -> neuronLogic.createNeuron(position, NeuronType.BINDING))
+                .collect(Collectors.toList());
+        neuronsInRoute.get(0).setType(NeuronType.INPUT);
+        neuronsInRoute.get(neuronsInRoute.size() - 1).setType(NeuronType.OUTPUT);
         for (int i = 0; i < neuronsInRoute.size() - 1; i++) {
             connectWithAxon(neuronsInRoute.get(i), neuronsInRoute.get(i + 1));
         }

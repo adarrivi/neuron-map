@@ -15,6 +15,8 @@ public interface SectionGrid {
 
     int getSectionLength();
 
-    List<BrainPosition> getSectionOrigins();
+    List<Section> getAllSections();
+
+    void step();
 
 }

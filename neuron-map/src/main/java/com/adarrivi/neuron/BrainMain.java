@@ -11,8 +11,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.stereotype.Component;
 
+import com.adarrivi.neuron.brain.neuron.NeuronContainer;
 import com.adarrivi.neuron.config.NeuronContext;
-import com.adarrivi.neuron.model.NeuronContainer;
 import com.adarrivi.neuron.step.Stepper;
 import com.adarrivi.neuron.view.BrainJPanel;
 

@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.adarrivi.neuron.model.NeuronContainer;
+import com.adarrivi.neuron.brain.neuron.NeuronContainer;
 import com.adarrivi.neuron.step.Stepper;
 
 @Component
