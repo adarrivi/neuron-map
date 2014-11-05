@@ -2,12 +2,10 @@ package com.adarrivi.neuron.brain.neuron;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -20,8 +18,6 @@ import com.adarrivi.neuron.model.Dendrite;
 
 @Component
 public class NeuronContainer {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(NeuronContainer.class);
 
     @Value("${brain.neuron.accessible.distance}")
     private int accessibleDistance;
@@ -37,26 +33,28 @@ public class NeuronContainer {
 
     private List<Neuron> neurons;
 
+    @PostConstruct
     public void initialize() {
-        createRandomNeurons();
-        neurons.forEach(this::setAxonConnectionToAccessibleNeurons);
+        createRouteBindingNeurons();
     }
 
     public void stepNeurons() {
-        List<Future<String>> collect = neurons.stream().map(neuron -> neuronLogic.step(neuron)).collect(Collectors.toList());
-        for (Future<String> future : collect) {
-            try {
-                future.get();
-            } catch (InterruptedException | ExecutionException e) {
-                LOGGER.debug("Interrupted {}", e);
-            }
-        }
+        removeDeadNeurons();
+        neurons.forEach(neuronLogic::step);
     }
 
-    private void createRandomNeurons() {
+    private void removeDeadNeurons() {
+        List<Neuron> deadNeurons = neurons.stream().filter(neuron -> !neuronLogic.isAlive(neuron)).collect(Collectors.toList());
+        neurons.removeAll(deadNeurons);
+        neurons.forEach(neuron -> deadNeurons.forEach(deadNeuron -> neuron.removeConnection(deadNeuron)));
+    }
+
+    private void createRouteBindingNeurons() {
         neurons = new ArrayList<>();
         neurons.addAll(createRouteOfNeurons(new BrainPosition(0, 0), new BrainPosition(0, 500)));
-        neurons.addAll(createRouteOfNeurons(new BrainPosition(300, 0), new BrainPosition(300, 500)));
+        neurons.addAll(createRouteOfNeurons(new BrainPosition(200, 0), new BrainPosition(200, 500)));
+        neurons.addAll(createRouteOfNeurons(new BrainPosition(350, 0), new BrainPosition(350, 500)));
+        neurons.addAll(createRouteOfNeurons(new BrainPosition(400, 0), new BrainPosition(400, 500)));
     }
 
     private List<Neuron> createRouteOfNeurons(BrainPosition from, BrainPosition to) {
@@ -65,16 +63,26 @@ public class NeuronContainer {
                 .collect(Collectors.toList());
         neuronsInRoute.get(0).setType(NeuronType.INPUT);
         neuronsInRoute.get(neuronsInRoute.size() - 1).setType(NeuronType.OUTPUT);
+        return connectRouteNeurons(neuronsInRoute);
+    }
+
+    private List<Neuron> connectRouteNeurons(List<Neuron> neuronsInRoute) {
         for (int i = 0; i < neuronsInRoute.size() - 1; i++) {
             connectWithAxon(neuronsInRoute.get(i), neuronsInRoute.get(i + 1));
         }
         return neuronsInRoute;
+    }
 
+    public void createNeuron(BrainPosition position, NeuronType type) {
+        Neuron fastNeuron = neuronLogic.createNeuron(position, type);
+        setAxonConnectionToAccessibleNeurons(fastNeuron);
+        neurons.add(fastNeuron);
     }
 
     private void setAxonConnectionToAccessibleNeurons(Neuron neuron) {
         List<Neuron> accessibleNeurons = getAccessibleNeurons(neuron);
         accessibleNeurons.forEach(accessible -> connectWithAxon(neuron, accessible));
+        accessibleNeurons.forEach(accessible -> connectWithAxon(accessible, neuron));
     }
 
     private List<Neuron> getAccessibleNeurons(Neuron neuron) {
@@ -95,6 +103,10 @@ public class NeuronContainer {
 
     public List<Neuron> getNeurons() {
         return new ArrayList<>(neurons);
+    }
+
+    public void restart() {
+        initialize();
     }
 
 }

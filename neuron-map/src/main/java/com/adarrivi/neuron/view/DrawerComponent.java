@@ -49,6 +49,20 @@ public class DrawerComponent {
                 + minTransparencyValue;
     }
 
+    public int getLightColorTransparency(int minValue, int maxValue, int currentValue) {
+        int minTransparencyValue = 20;
+        int maxTransparencyValue = 80;
+
+        if (currentValue > maxValue) {
+            return maxTransparencyValue;
+        }
+        if (currentValue < minValue) {
+            return minTransparencyValue;
+        }
+        return (((currentValue - (minValue)) * (maxTransparencyValue - minTransparencyValue)) / (maxValue - (minValue)))
+                + minTransparencyValue;
+    }
+
     public void drawCenteredCircle(BrainPosition circlePosition, int radius, Graphics2D graphics2d) {
         DrawPosition position = toDrawPosition(circlePosition);
         int x = position.getX();

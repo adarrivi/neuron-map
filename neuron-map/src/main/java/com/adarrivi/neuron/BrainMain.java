@@ -11,7 +11,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.stereotype.Component;
 
-import com.adarrivi.neuron.brain.neuron.NeuronContainer;
 import com.adarrivi.neuron.config.NeuronContext;
 import com.adarrivi.neuron.step.Stepper;
 import com.adarrivi.neuron.view.BrainJPanel;
@@ -31,8 +30,6 @@ public class BrainMain extends JFrame implements Runnable {
 
     @Autowired
     private BrainJPanel brainJPanel;
-    @Autowired
-    private NeuronContainer neuronContainer;
     @Autowired
     private Stepper stepper;
 
@@ -55,7 +52,6 @@ public class BrainMain extends JFrame implements Runnable {
     public void run() {
         centerFrame();
         add(brainJPanel);
-        neuronContainer.initialize();
         LOG.debug("Container initialized");
         stepper.start();
     }

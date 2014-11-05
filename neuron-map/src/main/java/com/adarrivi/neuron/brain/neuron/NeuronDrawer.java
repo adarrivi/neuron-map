@@ -18,6 +18,8 @@ class NeuronDrawer implements ElementDrawer {
     private int minPotencial;
     @Value("${brain.neuron.potencial.rest}")
     private int maxPotencial;
+    @Value("${draw.showData}")
+    private boolean showData;
 
     @Autowired
     private NeuronContainer neuronContainer;
@@ -30,16 +32,31 @@ class NeuronDrawer implements ElementDrawer {
     }
 
     private void drawNeuron(Neuron neuron, Graphics2D graphics2d) {
+        drawConnections(neuron, graphics2d);
+        drawLocation(neuron, graphics2d);
+        if (showData) {
+            drawPotencial(neuron, graphics2d);
+        }
+    }
+
+    private void drawLocation(Neuron neuron, Graphics2D graphics2d) {
         neuron.getAxons().forEach(axon -> drawConnection(neuron, axon, graphics2d));
         setColorByNeuronType(neuron, graphics2d);
         drawerComponent.drawCenteredCircle(neuron.getPosition(), 5, graphics2d);
+    }
+
+    private void drawConnections(Neuron neuron, Graphics2D graphics2d) {
+        neuron.getAxons().forEach(axon -> drawConnection(neuron, axon, graphics2d));
+    }
+
+    private void drawPotencial(Neuron neuron, Graphics2D graphics2d) {
         drawerComponent.setColor(Color.BLACK, 150, graphics2d);
         drawerComponent.drawString(neuron.getPosition(), neuron.getCurrentPotencial() + "", graphics2d);
     }
 
     private void drawConnection(Neuron neuron, Axon axon, Graphics2D graphics2d) {
         drawerComponent.setColor(Color.WHITE, 50, graphics2d);
-        drawerComponent.drawLine(neuron.getPosition(), axon.getDestinatioPosition(), graphics2d);
+        drawerComponent.drawLine(neuron.getPosition(), axon.getDestination().getPosition(), graphics2d);
     }
 
     private void setColorByNeuronType(Neuron neuron, Graphics2D graphics2d) {

@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.adarrivi.neuron.brain.neuron.NeuronContainer;
+import com.adarrivi.neuron.brain.section.SectionGrid;
 import com.adarrivi.neuron.step.Stepper;
 
 @Component
@@ -33,7 +33,7 @@ public class BrainJPanel extends JPanel {
     @Autowired
     private Drawer drawer;
     @Autowired
-    private NeuronContainer neuronContainer;
+    private SectionGrid sectionGrid;
     @Autowired
     private Stepper stepper;
 
@@ -63,7 +63,7 @@ public class BrainJPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 stepper.stop();
-                neuronContainer.initialize();
+                sectionGrid.restart();
                 stepper.start();
 
             }

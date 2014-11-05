@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.adarrivi.neuron.brain.neuron.Neuron;
 import com.adarrivi.neuron.brain.neuron.NeuronContainer;
-import com.adarrivi.neuron.brain.neuron.NeuronLogic;
+import com.adarrivi.neuron.brain.neuron.NeuronType;
 import com.adarrivi.neuron.model.BrainPosition;
 
 @Component
@@ -36,10 +36,14 @@ class SectionGridImpl implements SectionGrid {
     @Value("${brain.grid.section.longPotencialMaxSteps}")
     private int longPotencialMaxSteps;
 
+    @Value("${brain.grid.section.fastNeuronSpanPotencialThreshold}")
+    private int fastNeuronSpanPotencialThreshold;
+    @Value("${brain.grid.section.longNeuronSpanPotencialThreshold}")
+    private int longNeuronSpanPotencialThreshold;
+    @Value("${brain.grid.section.maxNeurons}")
+    private int maxNeuronsPerSection;
     @Autowired
     private NeuronContainer neuronContainer;
-    @Autowired
-    private NeuronLogic neuronLogic;
 
     private List<List<Section>> grid;
 
@@ -108,13 +112,39 @@ class SectionGridImpl implements SectionGrid {
     @Override
     public void step() {
         getAllSections().forEach(this::registerPotencialChanges);
+        spanNeurons();
     }
 
     private void registerPotencialChanges(Section section) {
-        Stream<Neuron> neuronsInSection = neuronContainer.getNeurons().stream()
-                .filter(neuron -> section.containsPosition(neuron.getPosition()));
-        int activatedNeurons = Long.valueOf(neuronsInSection.filter(Neuron::isSending).count()).intValue();
+        int activatedNeurons = Long.valueOf(getNeuronsInSection(section).filter(Neuron::isSending).count()).intValue();
         section.getFastPotencialChange().addPotencialChanges(activatedNeurons);
         section.getLongPotencialChange().addPotencialChanges(activatedNeurons);
     }
+
+    private Stream<Neuron> getNeuronsInSection(Section section) {
+        return neuronContainer.getNeurons().stream().filter(neuron -> section.containsPosition(neuron.getPosition()));
+    }
+
+    private void spanNeurons() {
+        getAllSectionsStream().forEach(this::spanFastNeurons);
+    }
+
+    private void spanFastNeurons(Section section) {
+        if (canAddFastNeuronInSection(section)) {
+            neuronContainer.createNeuron(section.getRandomPosition(), NeuronType.FAST);
+            section.getFastPotencialChange().reset();
+        }
+    }
+
+    private boolean canAddFastNeuronInSection(Section section) {
+        return section.getFastPotencialChange().getSumPotencialChange() >= fastNeuronSpanPotencialThreshold
+                && getNeuronsInSection(section).count() <= maxNeuronsPerSection;
+    }
+
+    @Override
+    public void restart() {
+        neuronContainer.restart();
+        init();
+    }
+
 }

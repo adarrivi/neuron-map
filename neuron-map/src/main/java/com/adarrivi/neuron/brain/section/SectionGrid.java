@@ -19,4 +19,6 @@ public interface SectionGrid {
 
     void step();
 
+    void restart();
+
 }

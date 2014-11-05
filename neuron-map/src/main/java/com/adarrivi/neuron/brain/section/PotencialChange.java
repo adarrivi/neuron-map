@@ -25,6 +25,10 @@ class PotencialChange {
         }
     }
 
+    void reset() {
+        potencialChanges.clear();
+    }
+
     int getSumPotencialChange() {
         return potencialSum;
     }

@@ -33,7 +33,7 @@ public class Axon implements SteppableEntity {
     private int stepsRequiredToSendSpike;
     private Optional<Spike> spike;
     private int currentSpikeStep;
-    private BrainPosition destinationPosition;
+    private Neuron destination;
 
     @PostConstruct
     public void init() {
@@ -47,11 +47,11 @@ public class Axon implements SteppableEntity {
     }
 
     public void setDestinationNeuron(Neuron neuron) {
-        destinationPosition = neuron.getPosition();
+        destination = neuron;
     }
 
-    public BrainPosition getDestinatioPosition() {
-        return destinationPosition;
+    public Neuron getDestination() {
+        return destination;
     }
 
     public void setDendrite(Dendrite dendrite) {

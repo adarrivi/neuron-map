@@ -2,6 +2,7 @@ package com.adarrivi.neuron.brain.neuron;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.adarrivi.neuron.model.Axon;
 import com.adarrivi.neuron.model.BrainPosition;
@@ -15,15 +16,25 @@ public class Neuron {
     private boolean receivedOnce;
     private int currentPotencial;
     private NeuronType type;
+    private int lifeSpan;
 
-    Neuron(int currentPotencial, BrainPosition position, NeuronType type) {
+    Neuron(int currentPotencial, BrainPosition position, NeuronType type, int maxLifeSpan) {
         this.currentPotencial = currentPotencial;
         this.position = position;
         this.type = type;
+        this.lifeSpan = maxLifeSpan;
+    }
+
+    void step() {
+        lifeSpan--;
     }
 
     NeuronType getType() {
         return type;
+    }
+
+    int getLifeSpan() {
+        return lifeSpan;
     }
 
     void setType(NeuronType type) {
@@ -52,6 +63,11 @@ public class Neuron {
 
     List<Axon> getAxons() {
         return axons;
+    }
+
+    void removeConnection(Neuron neuron) {
+        List<Axon> toRemove = axons.stream().filter(axon -> axon.getDestination().equals(neuron)).collect(Collectors.toList());
+        axons.removeAll(toRemove);
     }
 
     int getCurrentPotencial() {

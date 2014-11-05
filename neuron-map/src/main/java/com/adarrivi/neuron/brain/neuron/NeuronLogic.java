@@ -1,11 +1,8 @@
 package com.adarrivi.neuron.brain.neuron;
 
 import java.util.Optional;
-import java.util.concurrent.Future;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
 
 import com.adarrivi.neuron.model.Axon;
@@ -14,28 +11,45 @@ import com.adarrivi.neuron.model.Dendrite;
 import com.adarrivi.neuron.model.Spike;
 
 @Component
-public class NeuronLogic {
+class NeuronLogic {
 
     @Value("${brain.neuron.potencial.rest}")
     private int restPotencial;
     @Value("${brain.neuron.potencial.threshold}")
     private int thresholdPotencial;
+    @Value("${brain.neuron.fast.lifeSpan}")
+    private int fastLifeSpan;
 
-    public Neuron createNeuron(BrainPosition position, NeuronType type) {
-        return new Neuron(restPotencial, position, type);
+    Neuron createNeuron(BrainPosition position, NeuronType type) {
+        int lifeSpanSteps = 0;
+        if (NeuronType.FAST.equals(type)) {
+            lifeSpanSteps = fastLifeSpan;
+        }
+        return new Neuron(restPotencial, position, type, lifeSpanSteps);
     }
 
-    public boolean isActivated(Neuron neuron) {
+    boolean isAlive(Neuron neuron) {
+        if (isInmortalType(neuron)) {
+            return true;
+        }
+        return neuron.getLifeSpan() > 0;
+    }
+
+    private boolean isInmortalType(Neuron neuron) {
+        return NeuronType.BINDING.equals(neuron.getType()) || NeuronType.INPUT.equals(neuron.getType())
+                || NeuronType.OUTPUT.equals(neuron.getType());
+    }
+
+    boolean isActivated(Neuron neuron) {
         return NeuronType.INPUT.equals(neuron.getType()) || neuron.getCurrentPotencial() >= thresholdPotencial;
     }
 
-    @Async
-    public Future<String> step(Neuron neuron) {
+    public void step(Neuron neuron) {
         consumeSpikesFromDendrites(neuron);
         fireAndReset(neuron);
         neuron.getAxons().forEach(Axon::step);
         openDendritesIfAxonsReady(neuron);
-        return new AsyncResult<>("");
+        neuron.step();
     }
 
     private boolean isSending(Neuron neuron) {
