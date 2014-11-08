@@ -24,4 +24,16 @@ public class BrainPosition {
         return Math.sqrt(px * px + py * py);
     }
 
+    public BrainPosition addX(int value) {
+        return new BrainPosition(x + value, y);
+    }
+
+    public BrainPosition addY(int value) {
+        return new BrainPosition(x, y + value);
+    }
+
+    public BrainPosition add(int xValue, int yValue) {
+        return new BrainPosition(x + xValue, y + yValue);
+    }
+
 }

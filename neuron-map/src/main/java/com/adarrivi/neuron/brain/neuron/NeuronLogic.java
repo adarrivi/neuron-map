@@ -44,7 +44,7 @@ class NeuronLogic {
         return NeuronType.INPUT.equals(neuron.getType()) || neuron.getCurrentPotencial() >= thresholdPotencial;
     }
 
-    public void step(Neuron neuron) {
+    void step(Neuron neuron) {
         consumeSpikesFromDendrites(neuron);
         fireAndReset(neuron);
         neuron.getAxons().forEach(Axon::step);

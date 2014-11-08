@@ -112,7 +112,30 @@ class SectionGridImpl implements SectionGrid {
     @Override
     public void step() {
         getAllSections().forEach(this::registerPotencialChanges);
+        influencedByOtherSections();
         spanNeurons();
+    }
+
+    private void influencedByOtherSections() {
+        getAllSections().forEach(
+                section -> section.getFastPotencialChange().increaseSumPotencialBy(getNeighboursFastAveragePotencial(section)));
+    }
+
+    private int getNeighboursFastAveragePotencial(Section aSection) {
+        Stream<Section> neighbours = getAllSections().stream().filter(section -> areNeighbours(aSection, section));
+        Double average = neighbours.mapToInt(section -> section.getFastPotencialChange().getSumPotencialChange()).average().getAsDouble();
+        average /= 5;
+        return average.intValue();
+    }
+
+    private boolean areNeighbours(Section a, Section b) {
+        BrainPosition aPosition = a.getOriginPosition();
+        return b.containsPosition(aPosition.addX(sectionLength)) || b.containsPosition(aPosition.addX(-sectionLength))
+                || b.containsPosition(aPosition.addY(sectionLength)) || b.containsPosition(aPosition.addY(-sectionLength))
+                || b.containsPosition(aPosition.add(sectionLength, sectionLength))
+                || b.containsPosition(aPosition.add(-sectionLength, -sectionLength))
+                || b.containsPosition(aPosition.add(sectionLength, -sectionLength))
+                || b.containsPosition(aPosition.add(-sectionLength, sectionLength));
     }
 
     private void registerPotencialChanges(Section section) {

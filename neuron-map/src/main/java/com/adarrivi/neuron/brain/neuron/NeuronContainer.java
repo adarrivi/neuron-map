@@ -2,6 +2,7 @@ package com.adarrivi.neuron.brain.neuron;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -18,6 +19,8 @@ import com.adarrivi.neuron.model.Dendrite;
 
 @Component
 public class NeuronContainer {
+
+    private static final Random RANDOM = new Random();
 
     @Value("${brain.neuron.accessible.distance}")
     private int accessibleDistance;
@@ -52,7 +55,10 @@ public class NeuronContainer {
     private void createRouteBindingNeurons() {
         neurons = new ArrayList<>();
         neurons.addAll(createRouteOfNeurons(new BrainPosition(0, 0), new BrainPosition(0, 500)));
-        neurons.addAll(createRouteOfNeurons(new BrainPosition(200, 0), new BrainPosition(200, 500)));
+        // neurons.addAll(createRouteOfNeurons(new BrainPosition(100, 0), new
+        // BrainPosition(100, 500)));
+        // neurons.addAll(createRouteOfNeurons(new BrainPosition(200, 0), new
+        // BrainPosition(200, 500)));
         neurons.addAll(createRouteOfNeurons(new BrainPosition(350, 0), new BrainPosition(350, 500)));
         neurons.addAll(createRouteOfNeurons(new BrainPosition(400, 0), new BrainPosition(400, 500)));
     }
@@ -81,8 +87,8 @@ public class NeuronContainer {
 
     private void setAxonConnectionToAccessibleNeurons(Neuron neuron) {
         List<Neuron> accessibleNeurons = getAccessibleNeurons(neuron);
-        accessibleNeurons.forEach(accessible -> connectWithAxon(neuron, accessible));
-        accessibleNeurons.forEach(accessible -> connectWithAxon(accessible, neuron));
+        accessibleNeurons.forEach(accessible -> maybeConnectWithAxon(neuron, accessible));
+        accessibleNeurons.forEach(accessible -> maybeConnectWithAxon(accessible, neuron));
     }
 
     private List<Neuron> getAccessibleNeurons(Neuron neuron) {
@@ -90,6 +96,12 @@ public class NeuronContainer {
         allNeurons.remove(neuron);
         return allNeurons.stream().filter(accessible -> neuron.getPosition().distance(accessible.getPosition()) < accessibleDistance)
                 .collect(Collectors.toList());
+    }
+
+    private void maybeConnectWithAxon(Neuron fromNeuron, Neuron toNeuron) {
+        if (RANDOM.nextBoolean()) {
+            connectWithAxon(fromNeuron, toNeuron);
+        }
     }
 
     private void connectWithAxon(Neuron fromNeuron, Neuron toNeuron) {

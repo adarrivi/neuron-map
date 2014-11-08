@@ -29,6 +29,10 @@ class PotencialChange {
         potencialChanges.clear();
     }
 
+    void increaseSumPotencialBy(int value) {
+        potencialSum += value;
+    }
+
     int getSumPotencialChange() {
         return potencialSum;
     }
